@@ -1,4 +1,5 @@
 from flask import Blueprint
+from app.decorators import login_required, admin_required
 
 from .controllers.home_controller import index
 from .controllers.login_controller import authenticate_user, logout_user
@@ -24,10 +25,13 @@ def register():
 
 
 @main.route("/dashboard", methods=["GET"])
+@login_required
+@admin_required
 def dashboard():
     return show_dashboard()
 
 
 @main.route("/logout", methods=["POST"])
+@login_required
 def logout():
     return logout_user()
