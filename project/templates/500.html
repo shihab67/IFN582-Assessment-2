@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}GROCS - Server Error{% endblock %}
+{% block content %}
+<section class="error-section">
+    <h2>500 - Internal Server Error</h2>
+    <p>Something went wrong on our end. Please try again later.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Return to Home</a>
+</section>
+{% endblock %}
