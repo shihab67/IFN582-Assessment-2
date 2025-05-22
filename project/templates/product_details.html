@@ -1,28 +1,36 @@
 {% extends "base.html" %}
 {% block title %}GROCS - {{ product.name }}{% endblock %}
 {% block content %}
-<section class="product-details-section">
-    <h2>Product Details</h2>
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <div class="product-details-img-container">
-                <img class="product-details-img" src="{{ url_for('static', filename='img/' + product.image) }}" alt="{{ product.name }}">
+    <section class="product-details-section">
+        <h2>Product Details</h2>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="product-details-img-container">
+                    <img class="product-details-img"
+                         src="{{ url_for('static', filename='img/' + product.image) }}"
+                         alt="{{ product.name }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="product-details-info p-3">
+                    <h4 class="product-name">{{ product.name }}</h4>
+                    <p class="product-price">${{ "%.2f" % product.price }}/kg</p>
+                    <p class="product-description">{{ product.description }}</p>
+                    <form action="{{ url_for('main.add_to_basket', item_id=product.item_id) }}"
+                          method="POST">
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number"
+                                   name="quantity"
+                                   id="quantity"
+                                   value="1"
+                                   min="1"
+                                   class="form-control w-25">
+                        </div>
+                        <button type="submit" class="btn btn-success">Add to Basket</button>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="product-details-info p-3">
-                <h4 class="product-name">{{ product.name }}</h4>
-                <p class="product-price">${{ "%.2f" % product.price }}/kg</p>
-                <p class="product-description">{{ product.description }}</p>
-                <form action="{{ url_for('main.add_to_basket', product_id=product.product_id) }}" method="POST">
-                    <div class="mb-3">
-                        <label for="quantity" class="form-label">Quantity</label>
-                        <input type="number" name="quantity" id="quantity" value="1" min="1" class="form-control w-25">
-                    </div>
-                    <button type="submit" class="btn btn-success">Add to Basket</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 {% endblock %}

@@ -1,82 +1,120 @@
 {% extends "base.html" %}
 {% block title %}GROCS - Home{% endblock %}
 {% block content %}
-<div id="carouselExample" class="carousel slide mb-4">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img src="{{ url_for('static', filename='img/header.jpg') }}" class="carousel-img" alt="GROCS Banner">
-        </div>
-    </div>
-</div>
-
-<section id="features" class="feature-section mb-4">
-    <h2>Our Features</h2>
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h4 class="card-title">Green Delivery</h4>
-                    <p class="card-text">Eco-friendly shipping using bicycle couriers, reducing your carbon footprint.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h4 class="card-title">Fast Search</h4>
-                    <p class="card-text">Quickly find items with our instant search and category filters.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h4 class="card-title">Local Products</h4>
-                    <p class="card-text">Fresh groceries sourced from nearby farms for quality and taste.</p>
-                </div>
+    <div id="carouselExample" class="carousel slide mb-4">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="{{ url_for('static', filename='img/slider-1.jpg') }}"
+                     class="carousel-img"
+                     alt="GROCS Banner">
             </div>
         </div>
     </div>
-</section>
-
-<section id="categories" class="category-section mb-4">
-    <h2>Shop by Category</h2>
-    <div class="row">
-        {% for category in categories %}
-        <div class="col-md-2 mb-3">
-            <a href="{{ url_for('main.index', category=category) }}" class="text-decoration-none">
+    <section id="features" class="feature-section mb-4">
+        <h2>Our Features</h2>
+        <div class="row">
+            <div class="col-md-4 mb-3">
                 <div class="card h-100">
+                    <img src="{{ url_for('static', filename='img/feature-1.jpg') }}"
+                         class="card-img-top img-fluid object-fit-cover"
+                         alt="Green Delivery Image"
+                         style="height: 200px;
+                                width: 100%;
+                                object-fit: cover">
                     <div class="card-body text-center">
-                        <h4 class="card-title">{{ category }}</h4>
+                        <h4 class="card-title">Green Delivery</h4>
+                        <p class="card-text">Eco-friendly shipping using bicycle couriers, reducing your carbon footprint.</p>
                     </div>
                 </div>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-
-<section id="products" class="product-section">
-    <h2>Available Products</h2>
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-4 mb-3">
-            <div class="card h-100 product-card">
-                <img class="card-img-top product-img" src="{{ url_for('static', filename='img/' + product.image) }}" alt="{{ product.name }}">
-                <div class="card-body text-center">
-                    <h4 class="card-title product-name">{{ product.name }}</h4>
-                    <p class="product-price">${{ "%.2f" % product.price }}/kg</p>
-                    <form action="{{ url_for('main.add_to_basket', product_id=product.product_id) }}" method="POST" class="d-inline">
-                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm d-inline-block w-auto">
-                        <button type="submit" class="btn btn-success btn-sm">Add to Basket</button>
-                    </form>
-                    <a href="{{ url_for('main.product_details', product_id=product.product_id) }}" class="btn btn-primary btn-sm">View Details</a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <img src="{{ url_for('static', filename='img/feature-2.jpg') }}"
+                         class="card-img-top img-fluid object-fit-cover"
+                         alt="Fast Search Image"
+                         style="height: 200px;
+                                width: 100%;
+                                object-fit: cover">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">Fast Search</h4>
+                        <p class="card-text">Quickly find items with our instant search and category filters.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <img src="{{ url_for('static', filename='img/feature-3.jpg') }}"
+                         class="card-img-top img-fluid object-fit-cover"
+                         alt="Local Products Image"
+                         style="height: 200px;
+                                width: 100%;
+                                object-fit: cover">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">Local Products</h4>
+                        <p class="card-text">Fresh groceries sourced from nearby farms for quality and taste.</p>
+                    </div>
                 </div>
             </div>
         </div>
-        {% else %}
-        <p class="text-center">No products found.</p>
-        {% endfor %}
-    </div>
-</section>
+    </section>
+    <section id="categories" class="category-section mb-4">
+        <h2>Shop by Category</h2>
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <a href="{{ url_for('main.index', category="all") }}"
+                   class="text-decoration-none">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">All Categories</h4>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% for category in categories %}
+                <div class="col-md-2 mb-3">
+                    <a href="{{ url_for('main.index', category=category.name) }}"
+                       class="text-decoration-none">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h4 class="card-title">{{ category.name }}</h4>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+    <section id="products" class="product-section">
+        <h2>Available Products</h2>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 product-card">
+                        <img class="card-img-top product-img"
+                             src="{{ url_for('static', filename='img/' + product.image) }}"
+                             alt="{{ product.name }}">
+                        <div class="card-body text-center">
+                            <h4 class="card-title product-name">{{ product.name }}</h4>
+                            <p class="product-price">${{ "%.2f" % product.price }}</p>
+                            <form action="{{ url_for('main.add_to_basket', item_id=product.id) }}"
+                                  method="POST"
+                                  class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-2 mb-2">
+                                <input type="number"
+                                       name="quantity"
+                                       value="1"
+                                       min="1"
+                                       class="form-control form-control-sm w-100"
+                                       style="max-width: 80px">
+                                <button type="submit" class="btn btn-success btn-sm">Add to Basket</button>
+                            </form>
+                            <a href="{{ url_for('main.item_details', item_id=product.id) }}"
+                               class="btn btn-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center">No products found.</p>
+            {% endfor %}
+        </div>
+    </section>
 {% endblock %}

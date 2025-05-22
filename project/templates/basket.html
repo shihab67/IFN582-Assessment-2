@@ -1,51 +1,58 @@
 {% extends "base.html" %}
 {% block title %}GROCS - Basket{% endblock %}
 {% block content %}
-<section class="cart-section">
-    <h2>Your Basket</h2>
-    {% if basket_items %}
-    <div class="table-responsive">
-        <table class="cart-table table">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in basket_items %}
-                <tr>
-                    <td><img class="cart-img" src="{{ url_for('static', filename='img/' + item.image) }}" alt="{{ item.name }}"></td>
-                    <td class="product-name">{{ item.name }}</td>
-                    <td class="product-price">${{ "%.2f" % item.price }}/kg</td>
-                    <td>
-                        <form action="{{ url_for('main.basket') }}" method="POST">
-                            {{ form.hidden_tag() }}
-                            <input type="hidden" name="product_id" value="{{ item.product_id }}">
-                            {{ form.quantity(class="form-control form-control-sm d-inline-block w-auto", value=item.quantity) }}
-                            <button type="submit" class="btn btn-update btn-sm">Update</button>
-                        </form>
-                    </td>
-                    <td>${{ "%.2f" % item.total }}</td>
-                    <td>
-                        <a href="{{ url_for('main.remove_from_basket', product_id=item.product_id) }}" class="btn btn-danger btn-sm">Remove</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="text-end">
-        <p><strong>Items Total:</strong> ${{ "%.2f" % total }}</p>
-        <a href="{{ url_for('main.clear_basket') }}" class="btn btn-danger">Clear Basket</a>
-        <a href="{{ url_for('main.checkout') }}" class="btn btn-success">Checkout</a>
-    </div>
-    {% else %}
-    <p class="text-center">Your basket is empty.</p>
-    {% endif %}
-</section>
+    <section class="cart-section">
+        <h2>Your Basket</h2>
+        {% if basket_items %}
+            <div class="table-responsive">
+                <table class="cart-table table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in basket_items %}
+                            <tr>
+                                <td>
+                                    <img class="cart-img"
+                                         src="{{ url_for('static', filename='img/' + item.image) }}"
+                                         alt="{{ item.name }}">
+                                </td>
+                                <td class="product-name">{{ item.name }}</td>
+                                <td class="product-price">${{ "%.2f" % item.price }}/kg</td>
+                                <td>
+                                    <form action="{{ url_for("main.basket") }}" method="POST">
+                                        {{ form.hidden_tag() }}
+                                        <input type="hidden" name="item_id" value="{{ item.item_id }}">
+                                        {{ form.quantity(class="form-control form-control-sm d-inline-block w-auto", value=item.quantity) }}
+                                        <button type="submit" class="btn btn-update btn-sm">Update</button>
+                                    </form>
+                                </td>
+                                <td>${{ "%.2f" % item.total }}</td>
+                                <td>
+                                    <a href="{{ url_for('main.remove_from_basket', item_id=item.item_id) }}"
+                                       class="btn btn-danger btn-sm">Remove</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-end">
+                <p>
+                    <strong>Items Total:</strong> ${{ "%.2f" % total }}
+                </p>
+                <a href="{{ url_for("main.clear_basket") }}" class="btn btn-danger">Clear Basket</a>
+                <a href="{{ url_for("main.checkout") }}" class="btn btn-success">Checkout</a>
+            </div>
+        {% else %}
+            <p class="text-center">Your basket is empty.</p>
+        {% endif %}
+    </section>
 {% endblock %}
