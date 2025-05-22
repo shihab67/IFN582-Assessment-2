@@ -16,6 +16,10 @@ from project.models import (
     get_item,
     get_user_by_email,
     create_user,
+    create_order,
+    create_order_items,
+    create_item,
+    delete_item,
 )
 from project.decorators import login_required, admin_required
 from project.session import set_user_session, get_user_session
@@ -169,81 +173,72 @@ def clear_basket():
     return redirect(url_for("main.basket"))
 
 
-# @main.route("/checkout", methods=["GET", "POST"])
-# def checkout():
-#     if "basket" not in session or not session["basket"]:
-#         flash("Your basket is empty.", "danger")
-#         return redirect(url_for("main.index"))
-#     if "user_id" not in session:
-#         flash("Please log in to checkout.", "danger")
-#         return redirect(url_for("main.login", next="checkout"))
-#     form = CheckoutForm()
-#     basket_items = []
-#     items_total = 0
-#     try:
-#         product = get_item(item["item_id"])
-#         if product:
-#             item_total = product["price"] * item["quantity"]
-#             basket_items.append(
-#                 {
-#                     "item_id": item["item_id"],
-#                     "name": product["name"],
-#                     "category_name": product["category_name"],
-#                     "price": product["price"],
-#                     "image": product["image"],
-#                     "quantity": item["quantity"],
-#                     "total": item_total,
-#                 }
-#             )
-#             items_total += item_total
+@main.route("/checkout", methods=["GET", "POST"])
+def checkout():
+    if "basket" not in session or not session["basket"]:
+        flash("Your basket is empty.", "danger")
+        return redirect(url_for("main.index"))
+    if "user_id" not in session:
+        flash("Please log in to checkout.", "danger")
+        return redirect(url_for("main.login", next="checkout"))
+    form = CheckoutForm()
+    basket_items = []
+    items_total = 0
+    try:
+        product = get_item(item["item_id"])
+        if product:
+            item_total = product["price"] * item["quantity"]
+            basket_items.append(
+                {
+                    "item_id": item["item_id"],
+                    "name": product["name"],
+                    "category_name": product["category_name"],
+                    "price": product["price"],
+                    "image": product["image"],
+                    "quantity": item["quantity"],
+                    "total": item_total,
+                }
+            )
+            items_total += item_total
 
-#         delivery_costs = {"standard": 9.50, "express": 12.50, "green": 14.00}
-#         delivery_option = (
-#             form.delivery_option.data if form.delivery_option.data else "standard"
-#         )
-#         if delivery_option not in delivery_costs:
-#             flash("Invalid delivery option selected.", "danger")
-#             return redirect(url_for("main.checkout"))
-#         delivery_cost = delivery_costs.get(delivery_option, 9.50)
-#         total = items_total + delivery_cost
-#         if form.validate_on_submit():
-#             cursor.execute(
-#                 "INSERT INTO orders (user_id, full_name, address, phone, delivery_option, total) VALUES (%s, %s, %s, %s, %s, %s)",
-#                 (
-#                     session["user_id"],
-#                     sanitize_input(form.full_name.data),
-#                     sanitize_input(form.address.data),
-#                     sanitize_input(form.phone.data),
-#                     delivery_option,
-#                     total,
-#                 ),
-#             )
-#             order_id = cursor.lastrowid
-#             for item in basket_items:
-#                 cursor.execute(
-#                     "INSERT INTO order_items (order_id, item_id, quantity, price) VALUES (%s, %s, %s, %s)",
-#                     (order_id, item["item_id"], item["quantity"], item["price"]),
-#                 )
-#             mysql.connection.commit()
-#             session.pop("basket", None)
-#             flash("Order placed successfully!", "success")
-#             return redirect(url_for("main.index"))
-#     except Exception as e:
-#         mysql.connection.rollback()
-#         flash(f"Error placing order: {str(e)}", "danger")
-#         return render_template("500.html"), 500
-#     finally:
-#         if cursor:
-#             cursor.close()
-#     return render_template(
-#         "checkout.html",
-#         form=form,
-#         basket_items=basket_items,
-#         items_total=items_total,
-#         delivery_cost=delivery_cost,
-#         total=total,
-#         delivery_costs=delivery_costs,
-#     )
+        delivery_costs = {"standard": 9.50, "express": 12.50, "green": 14.00}
+        delivery_option = (
+            form.delivery_option.data if form.delivery_option.data else "standard"
+        )
+        if delivery_option not in delivery_costs:
+            flash("Invalid delivery option selected.", "danger")
+            return redirect(url_for("main.checkout"))
+        delivery_cost = delivery_costs.get(delivery_option, 9.50)
+        total = items_total + delivery_cost
+        if form.validate_on_submit():
+            order_id = create_order(
+                sanitize_input(form.full_name.data),
+                sanitize_input(form.address.data),
+                sanitize_input(form.phone.data),
+                delivery_option,
+                total,
+                session["user_id"],
+            )
+            for item in basket_items:
+                create_order_items(
+                    order_id, item["item_id"], item["quantity"], item["price"]
+                )
+
+            session.pop("basket", None)
+            flash("Order placed successfully!", "success")
+            return redirect(url_for("main.index"))
+    except Exception as e:
+        flash(f"Error placing order: {str(e)}", "danger")
+        return render_template("500.html"), 500
+    return render_template(
+        "checkout.html",
+        form=form,
+        basket_items=basket_items,
+        items_total=items_total,
+        delivery_cost=delivery_cost,
+        total=total,
+        delivery_costs=delivery_costs,
+    )
 
 
 @main.route("/register", methods=["GET", "POST"])
@@ -289,8 +284,8 @@ def login():
             user = get_user_by_email(email)
             if user and bcrypt.check_password_hash(user["password"], password):
                 session["user"] = user
-                session["user_id"] = user["user_id"]
-                session["is_admin"] = user["role"]
+                session["user_id"] = user["id"]
+                session["is_admin"] = True if user["role"] == "admin" else False
                 session.permanent = True
                 flash("Logged in successfully!", "success")
                 next_page = sanitize_input(request.args.get("next", "index"))
@@ -303,6 +298,7 @@ def login():
 
 
 @main.route("/logout")
+@login_required
 def logout():
     try:
         session.clear()
@@ -312,67 +308,51 @@ def logout():
     return redirect(url_for("main.index"))
 
 
-# @main.route("/admin", methods=["GET", "POST"])
-# @admin_required
-# def admin():
-#     form = ProductForm()
-#     cursor = None
-#     try:
-#         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-#         if form.validate_on_submit():
-#             cursor.execute(
-#                 "INSERT INTO products (name, price, description, category, image) VALUES (%s, %s, %s, %s, %s)",
-#                 (
-#                     sanitize_input(form.name.data),
-#                     form.price.data,
-#                     sanitize_input(form.description.data),
-#                     sanitize_input(form.category.data),
-#                     sanitize_input(form.image.data),
-#                 ),
-#             )
-#             mysql.connection.commit()
-#             flash("Product added.", "success")
-#             return redirect(url_for("main.admin"))
-#         item_id = request.args.get("item_id", type=int)
-#         if item_id:
-#             cursor.execute("SELECT * FROM products WHERE item_id = %s", (item_id,))
-#             product = cursor.fetchone()
-#             if product:
-#                 form.name.data = product["name"]
-#                 form.price.data = product["price"]
-#                 form.description.data = product["description"]
-#                 form.category.data = product["category"]
-#                 form.image.data = product["image"]
-#         cursor.execute("SELECT * FROM products")
-#         products = cursor.fetchall()
-#     except Exception as e:
-#         mysql.connection.rollback()
-#         flash(f"Error managing products: {str(e)}", "danger")
-#         return render_template("500.html"), 500
-#     finally:
-#         if cursor:
-#             cursor.close()
-#     return render_template(
-#         "admin.html", form=form, products=products, edit_item_id=item_id
-#     )
+@main.route("/admin", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin():
+    form = ProductForm()
+    try:
+        if form.validate_on_submit():
+            create_item(
+                sanitize_input(form.name.data),
+                form.price.data,
+                sanitize_input(form.description.data),
+                sanitize_input(form.category.data),
+                sanitize_input(form.image.data),
+            )
+
+            flash("Product created successfully!", "success")
+            return redirect(url_for("main.admin"))
+        item_id = request.args.get("item_id", type=int)
+        if item_id:
+            product = get_item(item_id)
+            if product:
+                form.name.data = product["name"]
+                form.price.data = product["price"]
+                form.description.data = product["description"]
+                form.category.data = product["category"]
+                form.image.data = product["image"]
+
+        products = get_items()
+    except Exception as e:
+        flash(f"Error managing products: {str(e)}", "danger")
+        return render_template("500.html"), 500
+    return render_template(
+        "admin.html", form=form, products=products, edit_item_id=item_id
+    )
 
 
-# @main.route("/admin/delete/<int:item_id>")
-# @admin_required
-# def admin_delete(item_id):
-#     cursor = None
-#     try:
-#         cursor = mysql.connection.cursor()
-#         cursor.execute("DELETE FROM products WHERE item_id = %s", (item_id,))
-#         mysql.connection.commit()
-#         flash("Product deleted.", "success")
-#     except Exception as e:
-#         mysql.connection.rollback()
-#         flash(f"Error deleting product: {str(e)}", "danger")
-#     finally:
-#         if cursor:
-#             cursor.close()
-#     return redirect(url_for("main.admin"))
+@main.route("/admin/delete/<int:item_id>")
+@admin_required
+def admin_delete(item_id):
+    try:
+        delete_item(item_id)
+        flash("Product deleted.", "success")
+    except Exception as e:
+        flash(f"Error deleting product: {str(e)}", "danger")
+    return redirect(url_for("main.admin"))
 
 
 @main.errorhandler(404)

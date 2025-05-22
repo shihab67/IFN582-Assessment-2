@@ -27,16 +27,8 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */
 ;
 
---
 -- Table structure for table `categories`
---
 DROP TABLE IF EXISTS `categories`;
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */
-;
-
-/*!50503 SET character_set_client = utf8mb4 */
-;
 
 CREATE TABLE `categories` (
     `id` int NOT NULL AUTO_INCREMENT,
@@ -45,14 +37,9 @@ CREATE TABLE `categories` (
     `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 5 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
-/*!40101 SET character_set_client = @saved_cs_client */
-;
-
---
 -- Dumping data for table `categories`
---
 INSERT INTO
     `categories` (
         `id`,
@@ -77,16 +64,8 @@ VALUES
         '2025-05-21 19:03:25'
     );
 
---
 -- Table structure for table `items`
---
 DROP TABLE IF EXISTS `items`;
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */
-;
-
-/*!50503 SET character_set_client = utf8mb4 */
-;
 
 CREATE TABLE `items` (
     `id` int NOT NULL AUTO_INCREMENT,
@@ -101,14 +80,9 @@ CREATE TABLE `items` (
     PRIMARY KEY (`id`),
     KEY `category_id` (`category_id`),
     CONSTRAINT `items_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 16 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
-/*!40101 SET character_set_client = @saved_cs_client */
-;
-
---
 -- Dumping data for table `items`
---
 INSERT INTO
     `items` (
         `id`,
@@ -288,26 +262,41 @@ VALUES
         '2025-05-21 19:05:53'
     );
 
---
+-- Table structure for table `orders`
+DROP TABLE IF EXISTS `orders`;
+
+CREATE TABLE `orders` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `user_id` int NOT NULL,
+    `full_name` varchar(255) NOT NULL,
+    `address` text NOT NULL,
+    `phone` varchar(20) NOT NULL,
+    `order_date` timestamp NOT NULL,
+    `delivered_at` timestamp NULL DEFAULT NULL,
+    `notes` varchar(255) DEFAULT NULL,
+    `delivery_option` varchar(20) NOT NULL,
+    `total` decimal(10, 2) NOT NULL,
+    `status` enum(
+        'pending',
+        'processing',
+        'shipped',
+        'delivered',
+        'cancelled'
+    ) DEFAULT 'pending',
+    `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
 -- Table structure for table `order_items`
---
 DROP TABLE IF EXISTS `order_items`;
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */
-;
-
-/*!50503 SET character_set_client = utf8mb4 */
-;
 
 CREATE TABLE `order_items` (
     `id` int NOT NULL AUTO_INCREMENT,
-    `order_id` int DEFAULT NULL,
-    `item_id` int DEFAULT NULL,
-    `item_name` varchar(255) NOT NULL,
-    `category_name` varchar(255) NOT NULL,
+    `order_id` int NOT NULL,
+    `item_id` int NOT NULL,
     `quantity` int NOT NULL,
-    `unit_price` float NOT NULL,
-    `total_price` float NOT NULL,
+    `price` float NOT NULL,
     `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -317,86 +306,6 @@ CREATE TABLE `order_items` (
     CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
-/*!40101 SET character_set_client = @saved_cs_client */
-;
-
---
--- Dumping data for table `order_items`
---
---
--- Table structure for table `orders`
---
-DROP TABLE IF EXISTS `orders`;
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */
-;
-
-/*!50503 SET character_set_client = utf8mb4 */
-;
-
-CREATE TABLE `orders` (
-    `id` int NOT NULL AUTO_INCREMENT,
-    `user_id` int DEFAULT NULL,
-    `user_address_id` int DEFAULT NULL,
-    `total_amount` float NOT NULL,
-    `delivery_method` enum('click & collect', 'express', 'eco-friendly') DEFAULT NULL,
-    `delivery_fee` float DEFAULT NULL,
-    `payment_status` enum('paid', 'unpaid', 'failed') DEFAULT NULL,
-    `placed_at` timestamp NOT NULL,
-    `delivered_at` timestamp NULL DEFAULT NULL,
-    `notes` varchar(255) DEFAULT NULL,
-    `status` enum(
-        'pending',
-        'processing',
-        'shipped',
-        'delivered',
-        'cancelled'
-    ) DEFAULT NULL,
-    `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `user_id` (`user_id`),
-    CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
-
-/*!40101 SET character_set_client = @saved_cs_client */
-;
-
---
--- Dumping data for table `orders`
---
---
--- Table structure for table `user_addresses`
---
-DROP TABLE IF EXISTS `user_addresses`;
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */
-;
-
-/*!50503 SET character_set_client = utf8mb4 */
-;
-
-CREATE TABLE `user_addresses` (
-    `id` int NOT NULL AUTO_INCREMENT,
-    `user_id` int DEFAULT NULL,
-    `address` varchar(255) NOT NULL,
-    `suburb` varchar(255) NOT NULL,
-    `state` enum('NSW', 'QLD', 'Victoria', 'WA', 'Tasmania', 'SA') NOT NULL,
-    `postcode` int NOT NULL,
-    `country` varchar(255) NOT NULL,
-    `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `user_id` (`user_id`),
-    CONSTRAINT `user_addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
-
-/*!40101 SET character_set_client = @saved_cs_client */
-;
-
---
--- Dumping data for table `user_addresses`
---
 --
 -- Table structure for table `users`
 --
@@ -445,36 +354,60 @@ INSERT INTO
     )
 VALUES
     (
-        3,
+        1,
         'Admin',
         'One',
         'admin@gmail.com',
         '0400000001',
-        '$0bed214b8eb8c2f1a1d857d7534a3e93ab924d9bff7ae13dcc69ac02814cc1a5cb5ff8f72e144014cf30e3a7827d6dd7588ae8ba2752b158f640f614f16f0efd',
+        '$2a$12$tj91DnpBedg5n0BhC5e4tuPw.1tteB/JsS.9c8XCkXAYRfJ/5r/WS',
         'admin',
+        1,
+        '2025-05-21 19:03:25',
+        '2025-05-21 19:03:25'
+    ),
+    (
+        2,
+        'Admin',
+        'Two',
+        'admin2@gmail.com',
+        '0400000002',
+        '$2a$12$tj91DnpBedg5n0BhC5e4tuPw.1tteB/JsS.9c8XCkXAYRfJ/5r/WS',
+        'admin',
+        1,
+        '2025-05-21 19:03:25',
+        '2025-05-21 19:03:25'
+    ),
+    (
+        3,
+        'John',
+        'Doe',
+        'john@gmail.com',
+        '0400000003',
+        '$2a$12$tj91DnpBedg5n0BhC5e4tuPw.1tteB/JsS.9c8XCkXAYRfJ/5r/WS',
+        'customer',
         1,
         '2025-05-21 19:03:25',
         '2025-05-21 19:03:25'
     ),
     (
         4,
-        'Admin',
-        'Two',
-        'admin2@gmail.com',
-        '0400000002',
-        '$0bed214b8eb8c2f1a1d857d7534a3e93ab924d9bff7ae13dcc69ac02814cc1a5cb5ff8f72e144014cf30e3a7827d6dd7588ae8ba2752b158f640f614f16f0efd',
-        'admin',
+        'Jane',
+        'Smith',
+        'jane@gmail.com',
+        '0400000004',
+        '$2a$12$tj91DnpBedg5n0BhC5e4tuPw.1tteB/JsS.9c8XCkXAYRfJ/5r/WS',
+        'customer',
         1,
         '2025-05-21 19:03:25',
         '2025-05-21 19:03:25'
     ),
     (
         5,
-        'John',
-        'Doe',
-        'john@gmail.com',
-        '0400000003',
-        '$0bed214b8eb8c2f1a1d857d7534a3e93ab924d9bff7ae13dcc69ac02814cc1a5cb5ff8f72e144014cf30e3a7827d6dd7588ae8ba2752b158f640f614f16f0efd',
+        'Alice',
+        'Brown',
+        'alice@gmail.com',
+        '0400000005',
+        '$2a$12$tj91DnpBedg5n0BhC5e4tuPw.1tteB/JsS.9c8XCkXAYRfJ/5r/WS',
         'customer',
         1,
         '2025-05-21 19:03:25',
@@ -482,35 +415,11 @@ VALUES
     ),
     (
         6,
-        'Jane',
-        'Smith',
-        'jane@gmail.com',
-        '0400000004',
-        '$0bed214b8eb8c2f1a1d857d7534a3e93ab924d9bff7ae13dcc69ac02814cc1a5cb5ff8f72e144014cf30e3a7827d6dd7588ae8ba2752b158f640f614f16f0efd',
-        'customer',
-        1,
-        '2025-05-21 19:03:25',
-        '2025-05-21 19:03:25'
-    ),
-    (
-        7,
-        'Alice',
-        'Brown',
-        'alice@gmail.com',
-        '0400000005',
-        '$0bed214b8eb8c2f1a1d857d7534a3e93ab924d9bff7ae13dcc69ac02814cc1a5cb5ff8f72e144014cf30e3a7827d6dd7588ae8ba2752b158f640f614f16f0efd',
-        'customer',
-        1,
-        '2025-05-21 19:03:25',
-        '2025-05-21 19:03:25'
-    ),
-    (
-        8,
         'Bob',
         'Johnson',
         'bob@gmail.com',
         '0400000006',
-        '$0bed214b8eb8c2f1a1d857d7534a3e93ab924d9bff7ae13dcc69ac02814cc1a5cb5ff8f72e144014cf30e3a7827d6dd7588ae8ba2752b158f640f614f16f0efd',
+        '$2a$12$tj91DnpBedg5n0BhC5e4tuPw.1tteB/JsS.9c8XCkXAYRfJ/5r/WS',
         'customer',
         1,
         '2025-05-21 19:03:25',
@@ -537,5 +446,3 @@ VALUES
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */
 ;
-
--- Dump completed

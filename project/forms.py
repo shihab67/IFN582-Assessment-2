@@ -23,7 +23,7 @@ class ProductForm(FlaskForm):
         ],
     )
     price = FloatField(
-        "Price ($/kg)",
+        "Price ($)",
         validators=[
             DataRequired(),
             NumberRange(min=0, max=1000, message="Price must be between 0 and 1000."),
@@ -32,16 +32,10 @@ class ProductForm(FlaskForm):
     description = StringField(
         "Description", validators=[DataRequired(), Length(max=500)]
     )
-    category = StringField(
+    category = SelectField(
         "Category",
-        validators=[
-            DataRequired(),
-            Length(max=50),
-            Regexp(
-                r"^[\w\s-]+$",
-                message="Category must contain only letters, numbers, spaces, or hyphens.",
-            ),
-        ],
+        validators=[DataRequired()],
+        coerce=int,
     )
     image = StringField(
         "Image",

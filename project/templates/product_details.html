@@ -14,10 +14,11 @@
             <div class="col-md-6">
                 <div class="product-details-info p-3">
                     <h4 class="product-name">{{ product.name }}</h4>
-                    <p class="product-price">${{ "%.2f" % product.price }}/kg</p>
+                    <p class="product-price">${{ "%.2f" % product.price }}</p>
                     <p class="product-description">{{ product.description }}</p>
-                    <form action="{{ url_for('main.add_to_basket', item_id=product.item_id) }}"
+                    <form action="{{ url_for('main.add_to_basket', item_id=product.id) }}"
                           method="POST">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantity</label>
                             <input type="number"

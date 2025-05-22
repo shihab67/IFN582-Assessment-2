@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import session, redirect, url_for, flash
+from flask import session, redirect, url_for, flash, request
 
 
 def login_required(f):
@@ -17,8 +17,8 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session["user"] and session["user"]["role"] != "admin":
-            flash("You don't have permission to perform this operation!", "danger")
-            return redirect(url_for("main.login"))
+            flash("You don't have enough permission to perform this operation!", "danger")
+            return redirect(request.referrer)
         return f(*args, **kwargs)
 
     return decorated_function

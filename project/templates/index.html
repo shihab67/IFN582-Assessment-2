@@ -99,6 +99,7 @@
                             <form action="{{ url_for('main.add_to_basket', item_id=product.id) }}"
                                   method="POST"
                                   class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-2 mb-2">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                                 <input type="number"
                                        name="quantity"
                                        value="1"

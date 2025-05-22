@@ -25,7 +25,7 @@
                                          alt="{{ item.name }}">
                                 </td>
                                 <td class="product-name">{{ item.name }}</td>
-                                <td class="product-price">${{ "%.2f" % item.price }}/kg</td>
+                                <td class="product-price">${{ "%.2f" % item.price }}</td>
                                 <td>
                                     <form action="{{ url_for("main.basket") }}" method="POST">
                                         {{ form.hidden_tag() }}
