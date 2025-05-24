@@ -18,7 +18,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if session["user"] and session["user"]["role"] != "admin":
             flash("You don't have enough permission to perform this operation!", "danger")
-            return redirect(request.referrer)
+            return redirect(url_for("main.index"))
         return f(*args, **kwargs)
 
     return decorated_function
