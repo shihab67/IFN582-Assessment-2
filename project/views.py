@@ -20,6 +20,7 @@ from project.models import (
     create_order_items,
     create_item,
     delete_item,
+    get_orders,
 )
 from project.decorators import login_required, admin_required
 from project.session import set_user_session, get_user_session
@@ -171,6 +172,17 @@ def clear_basket():
     except Exception as e:
         flash(f"Error clearing basket: {str(e)}", "danger")
     return redirect(url_for("main.basket"))
+
+@main.route("/orders", methods=["GET"])
+@login_required
+def orders():
+    try:
+        orders = get_orders(session["user_id"])
+        print(orders)
+    except Exception as e:
+        flash(f"Error loading orders: {str(e)}", "danger")
+        return render_template("500.html"), 500
+    return render_template("orders.html", orders=orders)
 
 
 @main.route("/checkout", methods=["GET", "POST"])

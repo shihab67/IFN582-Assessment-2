@@ -70,6 +70,8 @@
                         </form>
                         <a href="{{ url_for("main.basket") }}"
                            class="btn btn-success btn-sm ms-2">Basket</a>
+                        <a href="{{ url_for("main.orders") }}"
+                           class="btn btn-primary btn-sm ms-2">Orders</a>
                         {% if session.user_id %}
                             {% if session.is_admin %}
                                 <a href="{{ url_for("main.admin") }}"

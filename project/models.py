@@ -92,6 +92,51 @@ def get_categories():
     return categories
 
 
+def get_orders(user_id = None):
+    cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute(
+        """
+        SELECT * FROM orders
+        WHERE user_id = %s
+        ORDER BY created_at DESC
+        """,
+        (user_id,),
+    )
+    orders = cursor.fetchall()
+
+    for order in orders:
+        cursor.execute(
+            """
+            SELECT 
+                oi.id AS order_item_id,
+                oi.order_id,
+                oi.item_id,
+                oi.quantity,
+                oi.price,
+                
+                i.id AS item_id,
+                i.name AS item_name,
+                i.description AS item_description,
+                i.image AS item_image,
+                i.price AS item_price,
+
+                c.id AS category_id,
+                c.name AS category_name
+
+            FROM order_items oi
+            JOIN items i ON oi.item_id = i.id
+            JOIN categories c ON i.category_id = c.id
+            WHERE oi.order_id = %s
+            """,
+            (order["id"],),
+        )
+        order["items"] = cursor.fetchall()
+
+    cursor.close()
+    return orders
+
+
 def create_order(full_name, address, phone, delivery_option, total, user_id):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
@@ -166,6 +211,7 @@ def get_category(category_id):
     cursor.close()
     return category
 
+
 def update_item(item_id, name, price, description, category, image):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
@@ -183,6 +229,7 @@ def update_item(item_id, name, price, description, category, image):
     cursor.close()
     return
 
+
 def delete_item(item_id):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("DELETE FROM items WHERE id = %s", (item_id,))
@@ -197,6 +244,7 @@ def delete_category(category_id):
     db.connection.commit()
     cursor.close()
     return
+
 
 def update_category(category_id, name):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
