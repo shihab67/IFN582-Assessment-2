@@ -83,19 +83,20 @@ class CheckoutForm(FlaskForm):
             DataRequired(),
             Length(max=20),
             Regexp(
-                r"^\+?\d{10,15}$",
-                message="Phone number must be 10-15 digits, optionally starting with +.",
+                r"^(?:\+614|04)\d{8}$",
+                message="Enter a valid Australian phone number.",
             ),
         ],
     )
     delivery_option = SelectField(
         "Delivery Option",
         choices=[
-            ("standard", "Standard ($9.50)"),
-            ("express", "Express ($12.50)"),
-            ("green", "Green ($2.00)"),
+            ("click_and_collect", "Click and Collect ($0.00)"),
+            ("express", "Express ($5.00)"),
+            ("eco_friendly", "Eco-Friendly ($10.00)"),
         ],
         validators=[DataRequired()],
+        default="click_and_collect",
     )
     submit = SubmitField("Place Order")
 

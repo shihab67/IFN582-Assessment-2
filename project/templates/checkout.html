@@ -1,135 +1,113 @@
 {% extends "base.html" %}
 {% block title %}GROCS - Checkout{% endblock %}
 {% block content %}
-<section class="delivery-form-section">
-    <h2>Checkout</h2>
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <h3>Order Summary</h3>
-            <div class="table-responsive">
-                <table class="order-table table">
-                    <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in basket_items %}
-                        <tr>
-                            <td><img class="cart-img" src="{{ url_for('static', filename='img/' + item.image) }}" alt="{{ item.name }}"></td>
-                            <td class="product-name">{{ item.name }}</td>
-                            <td class="product-price">${{ "%.2f" % item.price }}/kg</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>${{ "%.2f" % item.total }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <section class="delivery-form-section">
+        <h2>Checkout</h2>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <h3>Order Summary</h3>
+                <div class="table-responsive">
+                    <table class="order-table table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in basket_items %}
+                                <tr>
+                                    <td>
+                                        <img class="cart-img"
+                                             src="{{ url_for('static', filename='img/' + item.image) }}"
+                                             alt="{{ item.name }}">
+                                    </td>
+                                    <td class="product-name">{{ item.name }}</td>
+                                    <td class="product-price">${{ "%.2f" % item.price }}/kg</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>${{ "%.2f" % item.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p>
+                    <strong>Items Total:</strong> <span id="items-total">${{ "%.2f" % items_total }}</span>
+                </p>
+                <p>
+                    <strong>Delivery Cost:</strong> <span id="delivery-cost">${{ "%.2f" % delivery_cost }}</span>
+                </p>
+                <p>
+                    <strong>Total:</strong> <span id="total">${{ "%.2f" % total }}</span>
+                </p>
             </div>
-            <p><strong>Items Total:</strong> <span id="items-total">${{ "%.2f" % items_total }}</span></p>
-            <p><strong>Delivery Cost:</strong> <span id="delivery-cost">${{ "%.2f" % delivery_cost }}</span></p>
-            <p><strong>Total:</strong> <span id="total">${{ "%.2f" % total }}</span></p>
-        </div>
-        <div class="col-md-6">
-            <h3>Delivery Details</h3>
-            <p class="green-delivery">Choose <strong>Green Delivery</strong> for eco-friendly bicycle couriers!</p>
-            <div class="delivery-form p-3 form-group">
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    {{ form.full_name.label(class="form-label") }}
-                    {{ form.full_name(class="form-control") }}
-                    {% if form.full_name.errors %}
-                        {% for error in form.full_name.errors %}
-                            <span class="text-danger">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
+            <div class="col-md-6">
+                <h3>Delivery Details</h3>
+                <p class="green-delivery">
+                    Choose <strong>Eco-Friendly Delivery</strong> for bicycle couriers!
+                </p>
+                <div class="delivery-form p-3 form-group">
+                    <form id="checkout-form"
+                          action="{{ url_for("main.checkout") }}"
+                          method="POST">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.full_name.label(class="form-label") }}
+                            {{ form.full_name(class="form-control", id="full_name") }}
+                            {% if form.full_name.errors %}
+                                {% for error in form.full_name.errors %}<span class="text-danger">{{ error }}</span>{% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.address.label(class="form-label") }}
+                            {{ form.address(class="form-control", id="address") }}
+                            {% if form.address.errors %}
+                                {% for error in form.address.errors %}<span class="text-danger">{{ error }}</span>{% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control", id="phone") }}
+                            {% if form.phone.errors %}
+                                {% for error in form.phone.errors %}<span class="text-danger">{{ error }}</span>{% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.delivery_option.label(class="form-label") }}
+                            {{ form.delivery_option(class="form-select delivery-option", id="delivery_option") }}
+                            {% if form.delivery_option.errors %}
+                                {% for error in form.delivery_option.errors %}<span class="text-danger">{{ error }}</span>{% endfor %}
+                            {% endif %}
+                        </div>
+                        <button type="submit"
+                                form="checkout-form"
+                                class="btn btn-success"
+                                id="submit-btn">Place Order</button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    {{ form.address.label(class="form-label") }}
-                    {{ form.address(class="form-control") }}
-                    {% if form.address.errors %}
-                        {% for error in form.address.errors %}
-                            <span class="text-danger">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="mb-3">
-                    {{ form.phone.label(class="form-label") }}
-                    {{ form.phone(class="form-control") }}
-                    {% if form.phone.errors %}
-                        {% for error in form.phone.errors %}
-                            <span class="text-danger">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="mb-3">
-                    {{ form.delivery_option.label(class="form-label") }}
-                    {{ form.delivery_option(class="form-select delivery-option", id="delivery_option") }}
-                    {% if form.delivery_option.errors %}
-                        {% for error in form.delivery_option.errors %}
-                            <span class="text-danger">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <button type="submit" form="checkout-form" class="btn btn-success" id="submit-btn">Place Order</button>
             </div>
-            <form id="checkout-form" action="{{ url_for('main.checkout') }}" method="POST">
-                {{ form.hidden_tag() }}
-            </form>
         </div>
-    </div>
-</section>
+    </section>
+{% endblock %}
 {% block scripts %}
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         const deliverySelect = document.querySelector('#delivery_option');
         const deliveryCostEl = document.querySelector('#delivery-cost');
         const totalEl = document.querySelector('#total');
         const deliveryCosts = {{ delivery_costs | tojson | safe }};
         const itemsTotal = {{ items_total | float }};
-        const form = document.querySelector('#checkout-form');
-        const submitBtn = document.querySelector('#submit-btn');
-
-        if (!deliverySelect || !deliveryCostEl || !totalEl || !deliveryCosts) {
-            console.error('Required elements or delivery costs not found.');
-            return;
-        }
 
         deliverySelect.addEventListener('change', function() {
             const selectedOption = this.value;
-            const deliveryCost = deliveryCosts[selectedOption] || 9.50;
+            const deliveryCost = deliveryCosts[selectedOption] || 0.00;
             const total = itemsTotal + deliveryCost;
             deliveryCostEl.textContent = `$${deliveryCost.toFixed(2)}`;
             totalEl.textContent = `$${total.toFixed(2)}`;
         });
-
-        form.addEventListener('submit', function(event) {
-            const fullName = document.querySelector('#full_name').value;
-            const address = document.querySelector('#address').value;
-            const phone = document.querySelector('#phone').value;
-            const nameRegex = /^[\w\s-]+$/;
-            const phoneRegex = /^\+?\d{10,15}$/;
-
-            if (!nameRegex.test(fullName)) {
-                event.preventDefault();
-                alert('Full name must contain only letters, numbers, spaces, or hyphens.');
-                return;
-            }
-            if (!nameRegex.test(address)) {
-                event.preventDefault();
-                alert('Address must contain only letters, numbers, spaces, or hyphens.');
-                return;
-            }
-            if (!phoneRegex.test(phone)) {
-                event.preventDefault();
-                alert('Phone number must be 10-15 digits, optionally starting with +.');
-                return;
-            }
-        });
     });
-</script>
+    </script>
 {% endblock %}

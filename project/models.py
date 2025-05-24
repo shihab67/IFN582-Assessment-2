@@ -95,7 +95,7 @@ def get_categories():
 def create_order(full_name, address, phone, delivery_option, total, user_id):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
-        "INSERT INTO orders (user_id, full_name, address, phone, delivery_option, total) VALUES (%s, %s, %s, %s, %s, %s)",
+        "INSERT INTO orders (user_id, full_name, address, phone, order_date, delivery_option, total) VALUES (%s, %s, %s, %s, %s, %s, %s)",
         (
             user_id,
             full_name,

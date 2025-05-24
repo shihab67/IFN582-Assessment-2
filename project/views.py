@@ -175,18 +175,24 @@ def clear_basket():
 
 @main.route("/checkout", methods=["GET", "POST"])
 def checkout():
-    if "basket" not in session or not session["basket"]:
+    if not session.get("basket"):
         flash("Your basket is empty.", "danger")
         return redirect(url_for("main.index"))
+
     if "user_id" not in session:
         flash("Please log in to checkout.", "danger")
         return redirect(url_for("main.login", next="checkout"))
+
     form = CheckoutForm()
     basket_items = []
-    items_total = 0
+    items_total = 0.0
+
     try:
-        product = get_item(item["item_id"])
-        if product:
+        for item in session["basket"]:
+            product = get_item(item["item_id"])
+            if not product:
+                continue
+
             item_total = product["price"] * item["quantity"]
             basket_items.append(
                 {
@@ -201,15 +207,16 @@ def checkout():
             )
             items_total += item_total
 
-        delivery_costs = {"standard": 9.50, "express": 12.50, "green": 14.00}
-        delivery_option = (
-            form.delivery_option.data if form.delivery_option.data else "standard"
-        )
+        delivery_costs = {"click_and_collect": 0.00, "express": 5.00, "eco_friendly": 10.00}
+        delivery_option = form.delivery_option.data or "click_and_collect"
+
         if delivery_option not in delivery_costs:
             flash("Invalid delivery option selected.", "danger")
             return redirect(url_for("main.checkout"))
-        delivery_cost = delivery_costs.get(delivery_option, 9.50)
+
+        delivery_cost = delivery_costs[delivery_option]
         total = items_total + delivery_cost
+
         if form.validate_on_submit():
             order_id = create_order(
                 sanitize_input(form.full_name.data),
@@ -219,6 +226,7 @@ def checkout():
                 total,
                 session["user_id"],
             )
+
             for item in basket_items:
                 create_order_items(
                     order_id, item["item_id"], item["quantity"], item["price"]
@@ -227,18 +235,19 @@ def checkout():
             session.pop("basket", None)
             flash("Order placed successfully!", "success")
             return redirect(url_for("main.index"))
+        else:
+            return render_template(
+                "checkout.html",
+                form=form,
+                basket_items=basket_items,
+                items_total=items_total,
+                delivery_cost=delivery_cost,
+                total=total,
+                delivery_costs=delivery_costs,
+            )
     except Exception as e:
         flash(f"Error placing order: {str(e)}", "danger")
         return render_template("500.html"), 500
-    return render_template(
-        "checkout.html",
-        form=form,
-        basket_items=basket_items,
-        items_total=items_total,
-        delivery_cost=delivery_cost,
-        total=total,
-        delivery_costs=delivery_costs,
-    )
 
 
 @main.route("/register", methods=["GET", "POST"])
