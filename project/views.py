@@ -21,6 +21,7 @@ from project.models import (
     create_item,
     delete_item,
     get_orders,
+    update_item,
 )
 from project.decorators import login_required, admin_required
 from project.session import set_user_session, get_user_session
@@ -342,59 +343,91 @@ def admin():
         categories = get_categories()
         products = get_items()
         orders = get_orders()
+        pending_orders = get_orders("pending")
     except Exception as e:
         flash(f"Error fetching products: {str(e)}", "danger")
         return render_template("500.html"), 500
     return render_template(
-        "admin.html", products=products, categories=categories, orders=orders
+        "admin.html",
+        products=products,
+        categories=categories,
+        orders=orders,
+        pending_orders=pending_orders,
     )
 
 
-@main.route("/admin/delete/<int:item_id>")
+@main.route("/admin/product/delete/<int:item_id>")
 @login_required
 @admin_required
-def admin_delete(item_id):
+def admin_product_delete(item_id):
     try:
         delete_item(item_id)
-        flash("Product deleted.", "success")
+        flash("Product deleted successfully!", "success")
     except Exception as e:
         flash(f"Error deleting product: {str(e)}", "danger")
-    return redirect(url_for("main.admin"))
+    return redirect(url_for("main.admin_products"))
 
 
-@main.route("/admin/products")
+@main.route("/admin/products", methods=["GET", "POST"])
 @login_required
 @admin_required
 def admin_products():
     form = ProductForm()
     try:
-        if form.validate_on_submit():
-            create_item(
-                sanitize_input(form.name.data),
-                form.price.data,
-                sanitize_input(form.description.data),
-                sanitize_input(form.category.data),
-                sanitize_input(form.image.data),
-            )
+        categories = get_categories()
+        form.category.choices = [(cat["id"], cat["name"]) for cat in categories]
 
-            flash("Product created successfully!", "success")
-            return redirect(url_for("main.admin"))
-        item_id = request.args.get("item_id", type=int)
+        item_id = (
+            request.form.get("item_id", type=int)
+            if request.method == "POST"
+            else request.args.get("item_id", type=int)
+        )
+        message = ""
+
+        if form.validate_on_submit():
+            if item_id:
+                update_item(
+                    item_id,
+                    sanitize_input(form.name.data),
+                    form.price.data,
+                    sanitize_input(form.description.data),
+                    form.category.data,
+                    form.image.data,
+                )
+                message = "Product updated successfully!"
+            else:
+                create_item(
+                    sanitize_input(form.name.data),
+                    form.price.data,
+                    sanitize_input(form.description.data),
+                    form.category.data,
+                    form.image.data,
+                )
+                message = "Product created successfully!"
+
+            flash(message, "success")
+            return redirect(url_for("main.admin_products"))
+
         if item_id:
             product = get_item(item_id)
             if product:
                 form.name.data = product["name"]
                 form.price.data = product["price"]
                 form.description.data = product["description"]
-                form.category.data = product["category"]
+                form.category.data = product["category_id"]
                 form.image.data = product["image"]
 
         products = get_items()
     except Exception as e:
         flash(f"Error managing products: {str(e)}", "danger")
         return render_template("500.html"), 500
+
     return render_template(
-        "admin_products.html", form=form, products=products, edit_item_id=item_id
+        "admin_products.html",
+        form=form,
+        products=products,
+        edit_item_id=item_id,
+        categories=categories,
     )
 
 

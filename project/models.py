@@ -104,15 +104,23 @@ def get_categories():
     return categories
 
 
-def get_orders(user_id=None):
+def get_orders(user_id=None, status=None):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
 
     query = "SELECT * FROM orders"
+    conditions = []
     params = []
 
-    if not session["is_admin"] is False and user_id is not None:
-        query += " WHERE user_id = %s"
+    if not session.get("is_admin") and user_id is not None:
+        conditions.append("user_id = %s")
         params.append(user_id)
+
+    if status is not None:
+        conditions.append("status = %s")
+        params.append(status)
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
 
     query += " ORDER BY created_at DESC"
 
@@ -196,7 +204,7 @@ def create_item(name, price, description, category, image):
     )
     db.connection.commit()
     cursor.close()
-    return
+    return  
 
 
 def create_category(name):
