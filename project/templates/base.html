@@ -45,34 +45,36 @@
                         </li>
                     </ul>
                     <div class="d-flex">
-                        <form action="{{ url_for("main.index") }}"
-                              method="GET"
-                              class="d-flex align-items-center gap-2">
-                            <select class="form-select form-select-sm category-select"
-                                    name="category"
-                                    onchange="this.form.submit()">
-                                <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All Categories</option>
-                                {% for category in categories %}
-                                    <option value="{{ category.name }}"
-                                            {% if selected_category == category.name %}selected{% endif %}>
-                                        {{ category.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <input type="text"
-                                   class="form-control form-control-sm"
-                                   name="search"
-                                   placeholder="Search products"
-                                   value="{{ search }}">
-                            <button type="submit" class="search-icon">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </form>
+                        {% if request.path == url_for("main.index") %}
+                            <form action="{{ url_for("main.index") }}"
+                                  method="GET"
+                                  class="d-flex align-items-center gap-2">
+                                <select class="form-select form-select-sm category-select"
+                                        name="category"
+                                        onchange="this.form.submit()">
+                                    <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All Categories</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.name }}"
+                                                {% if selected_category == category.name %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <input type="text"
+                                       class="form-control form-control-sm"
+                                       name="search"
+                                       placeholder="Search products"
+                                       value="{{ search }}">
+                                <button type="submit" class="search-icon">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </form>
+                        {% endif %}
                         <a href="{{ url_for("main.basket") }}"
                            class="btn btn-success btn-sm ms-2">Basket</a>
-                        <a href="{{ url_for("main.orders") }}"
-                           class="btn btn-primary btn-sm ms-2">Orders</a>
                         {% if session.user_id %}
+                            <a href="{{ url_for("main.orders") }}"
+                               class="btn btn-primary btn-sm ms-2">Orders</a>
                             {% if session.is_admin %}
                                 <a href="{{ url_for("main.admin") }}"
                                    class="btn btn-primary btn-sm ms-2">Admin</a>

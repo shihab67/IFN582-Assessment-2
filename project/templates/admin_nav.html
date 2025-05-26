@@ -1,0 +1,18 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="background-color: #2e7d32">
+            <ul class="nav justify-content-center">
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if url_for("main.admin") == request.path else '' }}"
+                       {{ 'aria-current="page"' if url_for("main.admin") == request.path else '' }}
+                       href="{{ url_for("main.admin") }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if url_for("main.admin_products") == request.path else '' }}"
+                       {{ 'aria-current="page"' if url_for("main.admin_products") == request.path else '' }}
+                       href="{{ url_for("main.admin_products") }}">Products</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

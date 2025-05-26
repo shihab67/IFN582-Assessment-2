@@ -173,6 +173,7 @@ def clear_basket():
         flash(f"Error clearing basket: {str(e)}", "danger")
     return redirect(url_for("main.basket"))
 
+
 @main.route("/orders", methods=["GET"])
 @login_required
 def orders():
@@ -219,7 +220,11 @@ def checkout():
             )
             items_total += item_total
 
-        delivery_costs = {"click_and_collect": 0.00, "express": 5.00, "eco_friendly": 10.00}
+        delivery_costs = {
+            "click_and_collect": 0.00,
+            "express": 5.00,
+            "eco_friendly": 10.00,
+        }
         delivery_option = form.delivery_option.data or "click_and_collect"
 
         if delivery_option not in delivery_costs:
@@ -333,6 +338,34 @@ def logout():
 @login_required
 @admin_required
 def admin():
+    try:
+        categories = get_categories()
+        products = get_items()
+        orders = get_orders()
+    except Exception as e:
+        flash(f"Error fetching products: {str(e)}", "danger")
+        return render_template("500.html"), 500
+    return render_template(
+        "admin.html", products=products, categories=categories, orders=orders
+    )
+
+
+@main.route("/admin/delete/<int:item_id>")
+@login_required
+@admin_required
+def admin_delete(item_id):
+    try:
+        delete_item(item_id)
+        flash("Product deleted.", "success")
+    except Exception as e:
+        flash(f"Error deleting product: {str(e)}", "danger")
+    return redirect(url_for("main.admin"))
+
+
+@main.route("/admin/products")
+@login_required
+@admin_required
+def admin_products():
     form = ProductForm()
     try:
         if form.validate_on_submit():
@@ -361,19 +394,8 @@ def admin():
         flash(f"Error managing products: {str(e)}", "danger")
         return render_template("500.html"), 500
     return render_template(
-        "admin.html", form=form, products=products, edit_item_id=item_id
+        "admin_products.html", form=form, products=products, edit_item_id=item_id
     )
-
-
-@main.route("/admin/delete/<int:item_id>")
-@admin_required
-def admin_delete(item_id):
-    try:
-        delete_item(item_id)
-        flash("Product deleted.", "success")
-    except Exception as e:
-        flash(f"Error deleting product: {str(e)}", "danger")
-    return redirect(url_for("main.admin"))
 
 
 @main.errorhandler(404)

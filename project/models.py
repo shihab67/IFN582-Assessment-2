@@ -2,6 +2,7 @@ from .db import db
 import MySQLdb.cursors
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timezone
+from flask import session
 
 bcrypt = Bcrypt()
 
@@ -50,17 +51,28 @@ def get_user_by_id(user_id):
 
 def get_items(category=None, search=None):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
+
     query = """
         SELECT items.*, categories.name AS category_name
         FROM items
         JOIN categories ON items.category_id = categories.id
-        WHERE items.name LIKE %s
     """
-    params = [f"%{search}%"]
 
-    if category != "all":
-        query += " AND categories.name = %s"
+    filters = []
+    params = []
+
+    if search:
+        filters.append("items.name LIKE %s")
+        params.append(f"%{search}%")
+
+    if category and category != "all":
+        filters.append("categories.name = %s")
         params.append(category)
+
+    if filters:
+        query += " WHERE " + " AND ".join(filters)
+
+    query += " ORDER BY items.id DESC"
 
     cursor.execute(query, params)
     items = cursor.fetchall()
@@ -92,17 +104,19 @@ def get_categories():
     return categories
 
 
-def get_orders(user_id = None):
+def get_orders(user_id=None):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    cursor.execute(
-        """
-        SELECT * FROM orders
-        WHERE user_id = %s
-        ORDER BY created_at DESC
-        """,
-        (user_id,),
-    )
+    query = "SELECT * FROM orders"
+    params = []
+
+    if not session["is_admin"] is False and user_id is not None:
+        query += " WHERE user_id = %s"
+        params.append(user_id)
+
+    query += " ORDER BY created_at DESC"
+
+    cursor.execute(query, params)
     orders = cursor.fetchall()
 
     for order in orders:
