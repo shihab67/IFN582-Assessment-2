@@ -6,7 +6,7 @@
         <h2>Manage Categories</h2>
         <div class="row">
             <div class="col-md-6 mb-3">
-                <h3>{{ 'Edit Product' if edit_category_id else 'Add Category' }}</h3>
+                <h3>{{ 'Edit Category' if edit_category_id else 'Add Category' }}</h3>
                 <div class="admin-form p-3 form-group">
                     <form action="{{ url_for("main.admin_categories") }}" method="POST">
                         {{ form.hidden_tag() }}
