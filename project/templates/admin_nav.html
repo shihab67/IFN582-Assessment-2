@@ -8,6 +8,11 @@
                        href="{{ url_for("main.admin") }}">Dashboard</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ 'active' if url_for("main.admin_categories") == request.path else '' }}"
+                       {{ 'aria-current="page"' if url_for("main.admin_categories") == request.path else '' }}
+                       href="{{ url_for("main.admin_categories") }}">Categories</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ 'active' if url_for("main.admin_products") == request.path else '' }}"
                        {{ 'aria-current="page"' if url_for("main.admin_products") == request.path else '' }}
                        href="{{ url_for("main.admin_products") }}">Products</a>

@@ -207,11 +207,11 @@ def create_item(name, price, description, category, image):
     return  
 
 
-def create_category(name):
+def create_category(name, image):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
-        "INSERT INTO categories (name) VALUES (%s)",
-        (name,),
+        "INSERT INTO categories (name, image) VALUES (%s, %s)",
+        (name, image),
     )
     db.connection.commit()
     cursor.close()
@@ -268,12 +268,13 @@ def delete_category(category_id):
     return
 
 
-def update_category(category_id, name):
+def update_category(category_id, name, image):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
-        "UPDATE categories SET name = %s WHERE id = %s",
+        "UPDATE categories SET name = %s , image = %s WHERE id = %s",
         (
             name,
+            image,
             category_id,
         ),
     )

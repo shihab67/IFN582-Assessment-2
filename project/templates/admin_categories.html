@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}GROCS - Categories{% endblock %}
+{% block content %}
+    {% include "admin_nav.html" %}
+    <section class="admin-section">
+        <h2>Manage Categories</h2>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <h3>{{ 'Edit Product' if edit_category_id else 'Add Category' }}</h3>
+                <div class="admin-form p-3 form-group">
+                    <form action="{{ url_for("main.admin_categories") }}" method="POST">
+                        {{ form.hidden_tag() }}
+                        {% if edit_category_id %}<input type="hidden" name="category_id" value="{{ edit_category_id }}">{% endif %}
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                            {% if form.name.errors %}
+                                {% for error in form.name.errors %}<span class="text-danger">{{ error }}</span>{% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.image.label(class="form-label") }}
+                            {{ form.image(class="form-control") }}
+                            {% if form.image.errors %}
+                                {% for error in form.image.errors %}<span class="text-danger">{{ error }}</span>{% endfor %}
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h3>Category List</h3>
+                <div class="table-responsive">
+                    <table class="admin-table table">
+                        <thead>
+                            <tr>
+                                <th>Sl.</th>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td class="product-name">{{ category.name }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.admin_categories', category_id=category.id) }}"
+                                           class="btn btn-secondary btn-sm m-1">Edit</a>
+                                        <a href="{{ url_for('main.admin_category_delete', category_id=category.id) }}"
+                                           class="btn btn-danger btn-sm m-1">Delete</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No categories found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

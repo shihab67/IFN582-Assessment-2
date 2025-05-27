@@ -9,7 +9,14 @@ from flask import (
     abort,
 )
 from flask_bcrypt import Bcrypt
-from project.forms import ProductForm, BasketForm, CheckoutForm, RegisterForm, LoginForm
+from project.forms import (
+    ProductForm,
+    BasketForm,
+    CheckoutForm,
+    RegisterForm,
+    LoginForm,
+    CategoryForm,
+)
 from project.models import (
     get_items,
     get_categories,
@@ -22,6 +29,10 @@ from project.models import (
     delete_item,
     get_orders,
     update_item,
+    create_category,
+    update_category,
+    delete_category,
+    get_category,
 )
 from project.decorators import login_required, admin_required
 from project.session import set_user_session, get_user_session
@@ -429,6 +440,66 @@ def admin_products():
         edit_item_id=item_id,
         categories=categories,
     )
+
+@main.route("/admin/categories", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_categories():
+    form = CategoryForm()
+    try:
+        category_id = (
+            request.form.get("category_id", type=int)
+            if request.method == "POST"
+            else request.args.get("category_id", type=int)
+        )
+        message = ""
+
+        if form.validate_on_submit():
+            if category_id:
+                update_category(
+                    category_id,
+                    sanitize_input(form.name.data),
+                    form.image.data,
+                )
+                message = "Category updated successfully!"
+            else:
+                create_category(
+                    sanitize_input(form.name.data),
+                    form.image.data,
+                )
+                message = "Category created successfully!"
+
+            flash(message, "success")
+            return redirect(url_for("main.admin_categories"))
+
+        if category_id:
+            category = get_category(category_id)
+            if category:
+                form.name.data = category["name"]
+                form.image.data = category["image"]
+
+        categories = get_categories()
+    except Exception as e:
+        flash(f"Error managing categories: {str(e)}", "danger")
+        return render_template("500.html"), 500
+
+    return render_template(
+        "admin_categories.html",
+        form=form,
+        edit_category_id=category_id,
+        categories=categories,
+    )
+    
+@main.route("/admin/category/delete/<int:category_id>")
+@login_required
+@admin_required
+def admin_category_delete(category_id):
+    try:
+        delete_category(category_id)
+        flash("Category deleted successfully!", "success")
+    except Exception as e:
+        flash(f"Error deleting category: {str(e)}", "danger")
+    return redirect(url_for("main.admin_categories"))
 
 
 @main.errorhandler(404)

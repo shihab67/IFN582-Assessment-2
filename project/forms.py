@@ -49,6 +49,31 @@ class ProductForm(FlaskForm):
         ],
     )
     submit = SubmitField("Submit")
+    
+class CategoryForm(FlaskForm):
+    name = StringField(
+        "Name",
+        validators=[
+            DataRequired(),
+            Length(max=100),
+            Regexp(
+                r"^[\w\s-]+$",
+                message="Name must contain only letters, numbers, spaces, or hyphens.",
+            ),
+        ],
+    )
+    image = StringField(
+        "Image",
+        validators=[
+            DataRequired(),
+            Length(max=100),
+            Regexp(
+                r"^[\w-]+\.(jpg|png)$",
+                message="Image must be a valid .jpg or .png filename.",
+            ),
+        ],
+    )
+    submit = SubmitField("Submit")
 
 
 class BasketForm(FlaskForm):
