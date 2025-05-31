@@ -1,10 +1,29 @@
 {% extends "base.html" %}
-{% block title %}GROCS - My Orders{% endblock %}
+{% block title %}GROCS - Orders{% endblock %}
 {% block content %}
-    <section class="delivery-form-section">
-        <h2>My Orders</h2>
+    {% include "admin_nav.html" %}
+    <section class="admin-section">
+        <h2>Manage Orders</h2>
         <div class="row">
-            <div class="col-md-12 mb-3">
+            {% if edit_order_id %}
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <h3>Update Order #{{ edit_order_id }}</h3>
+                    <div class="admin-form p-3 form-group">
+                        <form action="{{ url_for("main.admin_orders") }}" method="POST">
+                            {{ form.hidden_tag() }}
+                            <input type="hidden" name="order_id" value="{{ edit_order_id }}">
+                            <div class="mb-3">
+                                {{ form.status.label(class="form-label") }}
+                                {{ form.status(class="form-control") }}
+                                {% for error in form.status.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                            </div>
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="{{ 'col-md-9' if edit_order_id else 'col-md-12' }} cols-sm-12">
+                <h3>Order List</h3>
                 <div class="table-responsive">
                     <table class="order-table table">
                         <thead>
@@ -34,7 +53,9 @@
                                                 data-bs-toggle="collapse"
                                                 data-bs-target="#orderDetails-{{ loop.index }}"
                                                 aria-expanded="false"
-                                                aria-controls="orderDetails-{{ loop.index }}">Items</button>
+                                                aria-controls="orderDetails-{{ loop.index }}">View Items</button>
+                                        <a href="{{ url_for('main.admin_orders', order_id=order.id) }}"
+                                           class="btn btn-sm btn-outline-success">Update</a>
                                     </td>
                                     <td>{{ order.full_name }}</td>
                                     <td>{{ order.address }}</td>

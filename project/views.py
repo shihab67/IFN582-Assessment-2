@@ -16,6 +16,7 @@ from project.forms import (
     RegisterForm,
     LoginForm,
     CategoryForm,
+    OrderForm,
 )
 from project.models import (
     get_items,
@@ -35,6 +36,7 @@ from project.models import (
     get_category,
     check_category_exists_in_products,
     check_product_exists_in_orders,
+    update_order,
 )
 from project.decorators import login_required, admin_required
 from project.session import set_user_session, get_user_session
@@ -193,7 +195,6 @@ def clear_basket():
 def orders():
     try:
         orders = get_orders(session["user_id"])
-        print(orders)
     except Exception as e:
         flash(f"Error loading orders: {str(e)}", "danger")
         return render_template("500.html"), 500
@@ -516,6 +517,49 @@ def admin_category_delete(category_id):
     except Exception as e:
         flash(f"Error deleting category: {str(e)}", "danger")
     return redirect(url_for("main.admin_categories"))
+
+
+@main.route("/admin/orders", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_orders():
+    form = OrderForm()
+    try:
+        form.status.choices = [
+            ("pending", "Pending"),
+            ("processing", "Processing"),
+            ("shipped", "Shipped"),
+            ("delivered", "Delivered"),
+            ("cancelled", "Cancelled"),
+        ]
+
+        order_id = (
+            request.form.get("order_id", type=int)
+            if request.method == "POST"
+            else request.args.get("order_id", type=int)
+        )
+
+        if form.validate_on_submit():
+            if order_id:
+                update_order(
+                    order_id,
+                    form.status.data,
+                )
+            flash("Order status updated successfully!", "success")
+            return redirect(url_for("main.admin_orders"))
+
+        if order_id:
+            order = get_item(order_id)
+            if order:
+                form.status.data = order["status"]
+
+        orders = get_orders()
+    except Exception as e:
+        flash(f"Error loading orders: {str(e)}", "danger")
+        return render_template("500.html"), 500
+    return render_template(
+        "admin_orders.html", orders=orders, form=form, edit_order_id=order_id
+    )
 
 
 @main.errorhandler(404)

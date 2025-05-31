@@ -159,6 +159,25 @@ def get_orders(user_id=None, status=None):
     return orders
 
 
+def update_order(order_id, status):
+    cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if status.lower() == "delivered":
+        delivered_at = datetime.now(timezone.utc)
+        cursor.execute(
+            "UPDATE orders SET status = %s, delivered_at = %s WHERE id = %s",
+            (status, delivered_at, order_id),
+        )
+    else:
+        cursor.execute(
+            "UPDATE orders SET status = %s WHERE id = %s", (status, order_id)
+        )
+
+    db.connection.commit()
+    cursor.close()
+    return
+
+
 def create_order(full_name, address, phone, delivery_option, total, user_id):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
@@ -204,7 +223,7 @@ def create_item(name, price, description, category, image):
     )
     db.connection.commit()
     cursor.close()
-    return  
+    return
 
 
 def create_category(name, image):
@@ -282,12 +301,14 @@ def update_category(category_id, name, image):
     cursor.close()
     return
 
+
 def check_category_exists_in_products(category_id):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT * FROM items WHERE category_id = %s", (category_id,))
     product = cursor.fetchone()
     cursor.close()
     return product
+
 
 def check_product_exists_in_orders(item_id):
     cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)

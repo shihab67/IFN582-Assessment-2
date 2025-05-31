@@ -49,7 +49,8 @@ class ProductForm(FlaskForm):
         ],
     )
     submit = SubmitField("Submit")
-    
+
+
 class CategoryForm(FlaskForm):
     name = StringField(
         "Name",
@@ -155,3 +156,8 @@ class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
+
+
+class OrderForm(FlaskForm):
+    status = SelectField("Status", validators=[DataRequired()])
+    submit = SubmitField("Update Order")
