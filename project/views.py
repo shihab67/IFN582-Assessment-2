@@ -33,6 +33,8 @@ from project.models import (
     update_category,
     delete_category,
     get_category,
+    check_category_exists_in_products,
+    check_product_exists_in_orders,
 )
 from project.decorators import login_required, admin_required
 from project.session import set_user_session, get_user_session
@@ -372,6 +374,12 @@ def admin():
 @admin_required
 def admin_product_delete(item_id):
     try:
+        product_exists_in_orders = check_product_exists_in_orders(item_id)
+
+        if product_exists_in_orders:
+            flash("Cannot delete product with associated orders.", "danger")
+            return redirect(url_for("main.admin_products"))
+
         delete_item(item_id)
         flash("Product deleted successfully!", "success")
     except Exception as e:
@@ -441,6 +449,7 @@ def admin_products():
         categories=categories,
     )
 
+
 @main.route("/admin/categories", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -489,12 +498,19 @@ def admin_categories():
         edit_category_id=category_id,
         categories=categories,
     )
-    
+
+
 @main.route("/admin/category/delete/<int:category_id>")
 @login_required
 @admin_required
 def admin_category_delete(category_id):
     try:
+        category_exists_in_products = check_category_exists_in_products(category_id)
+
+        if category_exists_in_products:
+            flash("Cannot delete category with associated products.", "danger")
+            return redirect(url_for("main.admin_categories"))
+
         delete_category(category_id)
         flash("Category deleted successfully!", "success")
     except Exception as e:

@@ -281,3 +281,17 @@ def update_category(category_id, name, image):
     db.connection.commit()
     cursor.close()
     return
+
+def check_category_exists_in_products(category_id):
+    cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM items WHERE category_id = %s", (category_id,))
+    product = cursor.fetchone()
+    cursor.close()
+    return product
+
+def check_product_exists_in_orders(item_id):
+    cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM order_items WHERE item_id = %s", (item_id,))
+    product = cursor.fetchone()
+    cursor.close()
+    return product
