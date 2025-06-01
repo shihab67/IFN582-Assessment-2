@@ -47,14 +47,14 @@
                                     <td class="product-name">{{ category.name }}</td>
                                     <td>
                                         <a href="{{ url_for('main.admin_categories', category_id=category.id) }}"
-                                           class="btn btn-secondary btn-sm m-1">Edit</a>
+                                           class="btn btn-outline-warning btn-sm m-1">Edit</a>
                                         <a href="{{ url_for('main.admin_category_delete', category_id=category.id) }}"
-                                           class="btn btn-danger btn-sm m-1">Delete</a>
+                                           class="btn btn-outline-danger btn-sm m-1">Delete</a>
                                     </td>
                                 </tr>
                             {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center">No categories found.</td>
+                                    <td colspan="3" class="text-center">No categories found.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

@@ -18,6 +18,7 @@
                                 {% for error in form.status.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
                             </div>
                             <button type="submit" class="btn btn-success">Submit</button>
+                            <a href="{{ url_for('main.admin_orders') }}" type="button" class="btn btn-danger mx-2">Cancel</a>
                         </form>
                     </div>
                 </div>
@@ -25,7 +26,7 @@
             <div class="{{ 'col-md-9' if edit_order_id else 'col-md-12' }} cols-sm-12">
                 <h3>Order List</h3>
                 <div class="table-responsive">
-                    <table class="order-table table">
+                    <table class="admin-table table">
                         <thead>
                             <tr>
                                 <th>Sl.</th>
@@ -55,14 +56,14 @@
                                                 aria-expanded="false"
                                                 aria-controls="orderDetails-{{ loop.index }}">View Items</button>
                                         <a href="{{ url_for('main.admin_orders', order_id=order.id) }}"
-                                           class="btn btn-sm btn-outline-success">Update</a>
+                                           class="btn btn-sm btn-outline-warning">Update</a>
                                     </td>
                                     <td>{{ order.full_name }}</td>
                                     <td>{{ order.address }}</td>
                                     <td>{{ order.phone }}</td>
                                     <td>{{ order.order_date.strftime("%Y-%m-%d") if order.order_date else '-' }}</td>
                                     <td>{{ order.delivered_at.strftime("%Y-%m-%d") if order.delivered_at else '-' }}</td>
-                                    <td>{{ order.delivery_option|capitalize }}</td>
+                                    <td>{{ order.delivery_option.replace('_', ' ') | title }}</td>
                                     <td>${{ "%.2f"|format(order.total) }}</td>
                                     <td class="badge {% if order.status == 'delivered' %} text-bg-success {% elif order.status == 'cancelled' %} text-bg-danger {% elif order.status == 'processing' %} text-bg-warning {% elif order.status == 'pending' %} text-bg-primary {% else %} text-bg-secondary {% endif %} ">
                                         {{ order.status|capitalize }}
@@ -99,6 +100,10 @@
                                             </div>
                                         </div>
                                     </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="11" class="text-center">No orders found.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

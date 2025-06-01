@@ -5,7 +5,7 @@
     <section class="admin-section">
         <h2>Manage Products</h2>
         <div class="row">
-            <div class="col-md-6 mb-3">
+            <div class="col-md-5 col-sm-12 mb-3 mb-md-0">
                 <h3>{{ 'Edit Product' if edit_item_id else 'Add Product' }}</h3>
                 <div class="admin-form p-3 form-group">
                     <form action="{{ url_for("main.admin_products") }}" method="POST">
@@ -48,7 +48,7 @@
                     </form>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-7 col-sm-12">
                 <h3>Product List</h3>
                 <div class="table-responsive">
                     <table class="admin-table table">
@@ -70,9 +70,9 @@
                                     <td>{{ product.category_name }}</td>
                                     <td>
                                         <a href="{{ url_for('main.admin_products', item_id=product.id) }}"
-                                           class="btn btn-secondary btn-sm m-1">Edit</a>
+                                           class="btn btn-outline-warning btn-sm m-1">Edit</a>
                                         <a href="{{ url_for('main.admin_product_delete', item_id=product.id) }}"
-                                           class="btn btn-danger btn-sm m-1">Delete</a>
+                                           class="btn btn-outline-danger btn-sm m-1">Delete</a>
                                     </td>
                                 </tr>
                             {% else %}

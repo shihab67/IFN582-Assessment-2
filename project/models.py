@@ -111,7 +111,7 @@ def get_orders(user_id=None, status=None):
     conditions = []
     params = []
 
-    if not session.get("is_admin") and user_id is not None:
+    if user_id is not None:
         conditions.append("user_id = %s")
         params.append(user_id)
 
