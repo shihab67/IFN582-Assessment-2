@@ -268,6 +268,15 @@ def checkout():
             flash("Order placed successfully!", "success")
             return redirect(url_for("main.index"))
         else:
+
+            if "user" in session:
+                form.full_name.data = (
+                    session.get("user")["first_name"]
+                    + " "
+                    + session.get("user")["last_name"]
+                )
+                form.phone.data = session.get("user")["phone_number"]
+
             return render_template(
                 "checkout.html",
                 form=form,
